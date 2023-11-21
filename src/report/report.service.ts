@@ -23,7 +23,7 @@ export class ReportService {
         });
     }
 
-    getReportOfUID(id: string): Promise<Report[]> {
+    getReportOfUser(id: string): Promise<Report[]> {
         return this.reportRepo.find({
             select: {
                 vio_id: true,
@@ -37,7 +37,7 @@ export class ReportService {
         });
     }
 
-    getReportOfUIDByStatus(uid: string, status: boolean): Promise<Report[]> {
+    getReportOfUserByStatus(uid: string, status: boolean): Promise<Report[]> {
         return this.reportRepo.find({
             select: {
                 vio_id: true,
@@ -70,12 +70,10 @@ export class ReportService {
         return this.reportRepo.save(report);
     }
 
-    async deleteReport(vid: string, uid: string, qid: string) : Promise<Report> {
+    async deleteOneReport(vid: string) : Promise<Report> {
         const report = await this.reportRepo.findOne({
             where: {
                 vio_id: vid,
-                user_id: uid,
-                quiz_id: qid,
             }
         });
         await this.reportRepo.delete(report);
