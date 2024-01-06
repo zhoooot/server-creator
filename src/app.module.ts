@@ -1,22 +1,21 @@
 import { Module } from '@nestjs/common';
 import { CreatorModule } from './creator/creator.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Creator } from './creator/creator';
 import { ReportModule } from './report/report.module';
-import { Report } from './report/report';
+import typeOrmConfig from './typeorm.config';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     CreatorModule,
     TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'zhoot',
-      password: 'pass',
-      database: 'server-creator',
-      entities: [Creator, Report],
-      synchronize: true,
+      ...typeOrmConfig,
+    }),
+    JwtModule.register({
+      publicKey: process.env.JWT_PUBLIC_KEY,
+      signOptions: {
+        algorithm: 'RS256',
+      },
     }),
     ReportModule,
   ],

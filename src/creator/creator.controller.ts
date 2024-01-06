@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CreatorService } from './creator.service';
 
 @Controller('creator')
@@ -19,7 +27,11 @@ export class CreatorController {
     console.log(fullname);
     console.log(phone);
     console.log(institution);
-    return await this.creatorService.createACreator(fullname, phone, institution);
+    return await this.creatorService.createACreator(
+      fullname,
+      phone,
+      institution,
+    );
   }
 
   @Put('/:id/')
@@ -29,12 +41,16 @@ export class CreatorController {
     @Body('phone') phone: string,
     @Body('institution') institution: string,
   ) {
-    return await this.creatorService.updateCreator(id, fullname, phone, institution);
+    return await this.creatorService.updateCreator(
+      id,
+      fullname,
+      phone,
+      institution,
+    );
   }
 
   @Delete('/:id/')
   async deleteCreator(@Param('id') id: string) {
     return await this.creatorService.deleteCreator(id);
   }
-
 }

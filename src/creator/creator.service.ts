@@ -10,7 +10,11 @@ export class CreatorService {
     private usersRepository: Repository<Creator>,
   ) {}
 
-  async createACreator(fullname: string, phone: string, institution: string): Promise<Creator> {
+  async createACreator(
+    fullname: string,
+    phone: string,
+    institution: string,
+  ): Promise<Creator> {
     const new_user = new Creator();
     new_user.fullname = fullname;
     new_user.phone = phone;
@@ -21,20 +25,25 @@ export class CreatorService {
 
   async getAllCreators(): Promise<Creator[]> {
     return await this.usersRepository.find({
-        select: {
-            id: true,
-            fullname: true,
-            phone: true,
-            institution: true
-        }
+      select: {
+        id: true,
+        fullname: true,
+        phone: true,
+        institution: true,
+      },
     });
   }
 
-  async updateCreator(id: string, fullname: string, phone: string, institution: string): Promise<Creator> {
+  async updateCreator(
+    id: string,
+    fullname: string,
+    phone: string,
+    institution: string,
+  ): Promise<Creator> {
     const user = await this.usersRepository.findOne({
-        where: {
-            id: id
-        },
+      where: {
+        id: id,
+      },
     });
     user.fullname = fullname;
     user.phone = phone;
@@ -45,12 +54,11 @@ export class CreatorService {
 
   async deleteCreator(id: string): Promise<Creator> {
     const user = await this.usersRepository.findOne({
-        where: {
-            id: id,
-        },
+      where: {
+        id: id,
+      },
     });
     await this.usersRepository.delete(id);
     return user;
   }
-
 }
