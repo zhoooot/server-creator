@@ -9,7 +9,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'mysql',
   entities: [Creator, Report],
   migrations: ['dist/migrations/*.js'],
-  synchronize: true,
 };
 
 export const dataSource = new DataSource(typeOrmConfig as DataSourceOptions);
