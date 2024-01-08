@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Creator } from './creator';
 import { Repository } from 'typeorm';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { USER_EXCHANGE_NAME, USER_ROUTING_KEY } from 'src/config';
 
 @Injectable()
 export class CreatorService {
@@ -10,8 +12,18 @@ export class CreatorService {
     private usersRepository: Repository<Creator>,
   ) {}
 
-  async createACreator(fullname: string, phone: string, institution: string): Promise<Creator> {
+  @RabbitSubscribe({
+    exchange: USER_EXCHANGE_NAME,
+    routingKey: USER_ROUTING_KEY,
+    queue: 'user-create',
+    queueOptions: {
+      durable: true,
+    },
+  })
+  async createCreator(creator: Creator): Promise<Creator> {
+    const { id, fullname, institution, phone } = creator;
     const new_user = new Creator();
+    new_user.id = id;
     new_user.fullname = fullname;
     new_user.phone = phone;
     new_user.institution = institution;
@@ -19,22 +31,31 @@ export class CreatorService {
     return new_user;
   }
 
-  async getAllCreators(): Promise<Creator[]> {
-    return await this.usersRepository.find({
-        select: {
-            id: true,
-            fullname: true,
-            phone: true,
-            institution: true
-        }
+  getCreator(id: string) {
+    return this.usersRepository.findOne({
+      where: {
+        id: id,
+      },
     });
   }
 
-  async updateCreator(id: string, fullname: string, phone: string, institution: string): Promise<Creator> {
+  async getAllCreators(): Promise<Creator[]> {
+    return await this.usersRepository.find({
+      select: {
+        id: true,
+        fullname: true,
+        phone: true,
+        institution: true,
+      },
+    });
+  }
+
+  async updateCreator(creator: Creator): Promise<Creator> {
+    const { id, fullname, institution, phone } = creator;
     const user = await this.usersRepository.findOne({
-        where: {
-            id: id
-        },
+      where: {
+        id: id,
+      },
     });
     user.fullname = fullname;
     user.phone = phone;
@@ -45,12 +66,11 @@ export class CreatorService {
 
   async deleteCreator(id: string): Promise<Creator> {
     const user = await this.usersRepository.findOne({
-        where: {
-            id: id,
-        },
+      where: {
+        id: id,
+      },
     });
     await this.usersRepository.delete(id);
     return user;
   }
-
 }
