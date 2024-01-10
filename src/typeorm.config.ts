@@ -1,4 +1,4 @@
-import { DataSourceOptions } from 'typeorm';
+import { DataSourceOptions, DataSource } from 'typeorm';
 import { Creator } from './creator/creator';
 import { DATABASE_URL } from './config';
 
@@ -7,7 +7,7 @@ export const option: DataSourceOptions = {
   url: DATABASE_URL,
   entities: [Creator],
   synchronize: true,
-  migrations: ['dist/migration/*.js'],
+  // migrations: ['dist/migrations/*.js'],
   migrationsTableName: 'migration_table',
   extra: {
     ssl: {
@@ -21,3 +21,5 @@ export const option: DataSourceOptions = {
 };
 
 export default option;
+
+export const dataSource = new DataSource(option);

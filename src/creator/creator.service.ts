@@ -2,31 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Creator } from './creator';
 import { Repository } from 'typeorm';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { USER_EXCHANGE_NAME, USER_ROUTING_KEY } from 'src/config';
+import { AmqpConnection, RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
 @Injectable()
 export class CreatorService {
   constructor(
     @InjectRepository(Creator)
     private usersRepository: Repository<Creator>,
+    private amqpConnection: AmqpConnection,
   ) {}
 
   @RabbitSubscribe({
-    exchange: USER_EXCHANGE_NAME,
-    routingKey: USER_ROUTING_KEY,
-    queue: 'user-create',
-    queueOptions: {
-      durable: true,
-    },
+    exchange: 'user',
+    routingKey: 'user.register',
+    queue: 'creator',
   })
-  async createCreator(creator: Creator): Promise<Creator> {
-    const { id, fullname, institution, phone } = creator;
+  async createCreator(creator: { id: string }): Promise<Creator> {
+    const { id } = creator;
     const new_user = new Creator();
     new_user.id = id;
-    new_user.fullname = fullname;
-    new_user.phone = phone;
-    new_user.institution = institution;
     await this.usersRepository.save(new_user);
     return new_user;
   }
@@ -71,6 +65,11 @@ export class CreatorService {
       },
     });
     await this.usersRepository.delete(id);
+
+    this.amqpConnection.publish('user', 'user.delete', {
+      id: id,
+    });
+
     return user;
   }
 }
